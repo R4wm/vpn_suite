@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  wireguard-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: wireguard-server
+    hostname: wireguard-server
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    ports:
+      - "51820:51820/udp"
+    networks:
+      wireguard-net:
+        ipv4_address: 172.20.0.10
+    restart: unless-stopped
+    volumes:
+      - ./server/wg0.conf:/etc/wireguard/wg0.conf:ro
+      - /lib/modules:/lib/modules:ro
+
+  wireguard-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: wireguard-client
+    hostname: wireguard-client
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      wireguard-net:
+        ipv4_address: 172.20.0.20
+    depends_on:
+      - wireguard-server
+    restart: unless-stopped
+    volumes:
+      - ./client/docker-client.conf:/etc/wireguard/wg0.conf:ro
+      - /lib/modules:/lib/modules:ro
+
+networks:
+  wireguard-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

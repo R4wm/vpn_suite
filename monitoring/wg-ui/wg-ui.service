@@ -1,0 +1,16 @@
+[Unit]
+Description=WireGuard UI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+EnvironmentFile=/etc/wireguard-ui/wireguard-ui.env
+ExecStart=/usr/local/bin/wireguard-ui
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

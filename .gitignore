@@ -1,0 +1,41 @@
+# WireGuard private keys - NEVER commit these!
+*.key
+*/keys/*.key
+
+# Docker volumes and temporary files
+.env
+*.log
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary and build files
+*.tmp
+tmp/
+
+# Native secret handling
+native-clients/plaintext/
+*.dec
+*.decrypted
+
+# Local passphrase material
+.openssl_passphrase
+.passphrase
+
+# Local test configs
+state/local-test/
+
+# Local terminal dumps / notes that may include credentials
+gabf_dump.txt
+*.session-dump.txt
+
+# Raw router backup binaries (keep local unless intentionally encrypted+reviewed)
+backups/router/**/*.bin

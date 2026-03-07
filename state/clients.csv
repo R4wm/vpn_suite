@@ -1,0 +1,6 @@
+name,platform,vpn_ip,public_key,status,created_at,notes
+client_windows,windows,10.8.0.2,HGPlLw8BZfps0w4apgvnN2hy46r2i0xBKjbc01MqXkc=,active,2025-12-06,Imported from live server
+client_linux,linux,10.8.0.3,gTJIOwelnrIVQSRp0/gVdAG/+mFTX5yPCEA5y1IWVVg=,active,2025-12-06,Imported from live server
+client_mac,mac,10.8.0.4,1DLjyBZwK9w1j6KSJ1BFO9PNEuCy1LT+aZ7QliT6mFk=,active,2025-12-06,Imported from live server
+onboarding_test1,linux,10.8.0.5,xqduxCGPPY2mkYzJOahEXN7rBeKZjRsT4HGoIZJ52ws=,active,2026-03-07,generated-by-new-client.sh
+thinkpad_win,windows,10.8.0.6,JGdRmARkK2PoyajXu8/3ItSh0al230yyZmuWU+Gpb38=,revoked,2026-03-07,revoked-2026-03-07
