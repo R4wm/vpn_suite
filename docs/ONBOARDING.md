@@ -2,6 +2,7 @@
 
 For platform-specific connect/test steps, see:
 - `docs/CLIENT_QUICKSTART.md`
+- `docs/WINDOWS_END_USER_CONNECT.md`
 - `docs/setup-notes/windows-client-test-runbook.md`
 
 ## Preconditions

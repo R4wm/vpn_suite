@@ -45,6 +45,9 @@ sudo wg-quick down wg0
 ```
 
 ## Windows
+Non-technical handoff guide:
+- `docs/WINDOWS_END_USER_CONNECT.md`
+
 1. Install WireGuard client from official installer.
 2. Open WireGuard app -> `Import tunnel(s) from file`.
 3. Select `<client_id>.conf`.
