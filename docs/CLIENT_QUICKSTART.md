@@ -59,6 +59,9 @@ ping 10.8.0.1
 6. Deactivate tunnel in UI when done.
 
 ## macOS
+Non-technical handoff guide:
+- `docs/MAC_END_USER_CONNECT.md`
+
 1. Install WireGuard from App Store.
 2. Import `<client_id>.conf`.
 3. Toggle tunnel `On`.

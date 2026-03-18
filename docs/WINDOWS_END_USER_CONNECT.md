@@ -1,79 +1,90 @@
-# Windows VPN Guide
+# Windows VPN Setup Guide
 
-This guide is for a Windows user who has already been given a WireGuard VPN config file.
+This guide is for someone who has already been given a ready-to-use WireGuard VPN file.
 
-You do not need to edit the file. You only need to install the app, import the file, and turn the VPN on.
+You do not need to edit anything in the file. Just install the app, import the file, connect, and test it.
 
-## What You Should Have
+## What You Need
 - A Windows computer with internet access
-- Your VPN config file ending in `.conf`
-- Permission from the VPN owner to connect
+- Your VPN file ending in `.conf`
+- The name of one thing you should test after connecting
+- This guide
 
-## 1. Install WireGuard
-1. Open a web browser.
-2. Go to `https://www.wireguard.com/install/`
-3. Download `WireGuard Installer for Windows`.
-4. Run the installer.
-5. If Windows asks for permission, click `Yes`.
+## Before You Start
+1. Save the `.conf` file somewhere easy to find, such as `Downloads` or `Desktop`.
+2. Make sure your internet is working before you turn the VPN on.
+3. Close the file if it opens in Notepad or another app. Do not change it.
+
+## 1. Install the WireGuard App
+1. Open your web browser.
+2. Go to `https://www.wireguard.com/install/`.
+3. Under Windows, download `WireGuard Installer`.
+4. Open the installer you downloaded.
+5. If Windows asks whether to allow the app to make changes, click `Yes`.
+6. Follow the install steps until it finishes.
 
 ## 2. Import Your VPN File
 1. Open the `WireGuard` app.
 2. Click `Import tunnel(s) from file`.
-3. Select the VPN `.conf` file you were given.
-4. A new tunnel will appear in the app.
+3. Browse to the `.conf` file you were given.
+4. Select the file and click `Open`.
+5. A new tunnel should appear in the WireGuard window.
 
-If the app shows the tunnel details, do not change anything unless the VPN owner told you to.
+If WireGuard shows the tunnel details, leave them as they are unless the VPN owner specifically told you to change something.
 
-## 3. Connect
-1. In the WireGuard app, click `Activate`.
-2. Wait a few seconds.
-3. The status should show that the tunnel is active.
+## 3. Connect to the VPN
+1. In the `WireGuard` app, click `Activate`.
+2. Wait 10 to 15 seconds.
+3. Look for the tunnel status to show as active.
 
-## 4. Check That It Worked
-Use either of these simple checks:
+Windows may ask for permission related to a VPN or network connection. If it does, allow it.
 
-### Option A: Basic check
-1. Open a web browser.
-2. Visit a site or service that only works when connected to the VPN.
+## 4. Test That It Worked
+Use the simple check first. If you were also given a company site, shared drive, printer, camera system, or other internal resource to test, try that too.
 
-### Option B: Ping check
+### Simple Test
 1. Open `PowerShell`.
-2. Run:
+2. Copy and run this command:
 
 ```powershell
 ping 10.8.0.1
 ```
 
-If the VPN is working, you should get replies instead of a timeout.
+3. Wait for the result.
 
-## 5. Disconnect
+If it worked, you should see replies. If it did not work, you will usually see `Request timed out`.
+
+### Real-World Test
+1. Open the app, website, folder, or system you were told to test.
+2. Confirm it works while the VPN is active.
+
+## 5. Disconnect When You Are Done
 1. Open the `WireGuard` app.
 2. Click `Deactivate`.
 
 ## Common Problems
 
 ### The file will not import
-- Make sure the file ends in `.conf`.
-- Try saving the file to `Downloads` or `Desktop` first, then import it again.
-- Ask the VPN owner to send a fresh copy if the file looks damaged or incomplete.
+- Make sure the file name ends in `.conf`.
+- Move the file to `Desktop` or `Downloads` and try again.
+- Ask for a fresh copy if the file seems damaged or incomplete.
 
-### It imports, but will not connect
-- Make sure your internet is working before you turn on the VPN.
-- Wait 10 to 15 seconds after clicking `Activate`.
-- Turn the tunnel off, then on again.
-- Restart WireGuard and try again.
+### The app installed, but the VPN will not turn on
+- Check that your normal internet connection is working first.
+- Wait a full 15 seconds after clicking `Activate`.
+- Click `Deactivate`, then `Activate` again.
+- Close WireGuard and open it again.
+- Restart the computer and try one more time.
 
-### It says connected, but the thing you need still does not work
-- The VPN may be limited to certain network destinations only.
-- Ask the VPN owner what address, website, or shared resource you should test.
+### The VPN says it is active, but the thing you need still does not work
+- Try the `ping 10.8.0.1` test again.
+- The VPN may only allow access to certain systems.
+- Confirm which website, folder, or device you were supposed to test.
 
-## When To Ask For Help
+## What To Send If You Need Help
 Send these details to the VPN owner:
 - Whether WireGuard installed successfully
-- Whether the tunnel imported successfully
-- Whether `Activate` worked
+- Whether the `.conf` file imported successfully
+- Whether the tunnel showed as active
 - The result of `ping 10.8.0.1`
-- Any error message shown by WireGuard
-
-## For The VPN Owner
-This guide assumes the user received a ready-to-import config file with the correct `Endpoint` already set.
+- A screenshot of any error message
