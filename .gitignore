@@ -39,3 +39,13 @@ gabf_dump.txt
 
 # Raw router backup binaries (keep local unless intentionally encrypted+reviewed)
 backups/router/**/*.bin
+
+# Client configs carry private keys. Only the placeholder templates are tracked;
+# real configs belong in native-clients/plaintext/ or encrypted/*.conf.enc.
+native-clients/*.conf
+!native-clients/client2.conf
+!native-clients/client3.conf
+!native-clients/client4.conf
+
+# Ad-hoc test configs with live keys
+tonight-vpn-test/

@@ -45,8 +45,8 @@ trap cleanup EXIT
 
 VPN_SUITE_PASSPHRASE_FILE="${PASSPHRASE_FILE}" "${SCRIPT_DIR}/decrypt-client-config.sh" "${CLIENT_ID}" --output "${TMP_CONF}" >/dev/null
 
-# For same-LAN testing, keep split route limited to VPN subnet to avoid routing conflicts.
-sed -i 's/^AllowedIPs = .*/AllowedIPs = 10.8.0.0\/24/' "${TMP_CONF}"
+# For same-LAN testing, route only the VPN subnet and server LAN through WireGuard.
+sed -i "s|^AllowedIPs = .*|AllowedIPs = ${SERVER_VPN_CIDR}, ${SERVER_LAN_CIDR}|" "${TMP_CONF}"
 
 echo "Bringing up ${CLIENT_ID} test tunnel..."
 sudo -n wg-quick up "${TMP_CONF}"
@@ -56,6 +56,9 @@ sudo -n wg show "${WG_IF}"
 
 echo "Pinging VPN server 10.8.0.1..."
 ping -c 3 10.8.0.1
+
+echo "Pinging LAN test target ${SERVER_LAN_TEST_IP}..."
+ping -c 3 "${SERVER_LAN_TEST_IP}"
 
 echo "Server-side handshake for ${CLIENT_ID}:"
 ssh -o BatchMode=yes "r4wm@${SERVER_HOST}" "sudo -n wg show wg0 latest-handshakes | grep '${PUB_KEY}'"

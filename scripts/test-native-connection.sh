@@ -61,11 +61,13 @@ trap cleanup EXIT
 echo "Fetching live Linux client material from ${SERVER}..."
 if [[ -n "${CLIENT_ID}" ]]; then
   ensure_passphrase_file
+  load_server_env
   "${SCRIPT_DIR}/decrypt-client-config.sh" "${CLIENT_ID}" --output "${TMP_CONF}" >/dev/null
-  # For same-LAN tests, avoid routing the full LAN via wg to prevent route conflicts.
-  sed -i 's/^AllowedIPs = .*/AllowedIPs = 10.8.0.0\/24/' "${TMP_CONF}"
+  # Keep same-LAN tests limited to the VPN subnet and server LAN.
+  sed -i "s|^AllowedIPs = .*|AllowedIPs = ${SERVER_VPN_CIDR}, ${SERVER_LAN_CIDR}|" "${TMP_CONF}"
   sed -i '/^DNS = /d' "${TMP_CONF}"
 else
+  load_server_env
   SERVER_PUB="$(ssh -o BatchMode=yes r4wm@${SERVER} 'sudo -n cat /etc/wireguard/server_public.key')"
   CLIENT_PRIV="$(ssh -o BatchMode=yes r4wm@${SERVER} 'sudo -n cat /etc/wireguard/client_linux_private.key')"
 
@@ -77,7 +79,7 @@ PrivateKey = ${CLIENT_PRIV}
 [Peer]
 PublicKey = ${SERVER_PUB}
 Endpoint = ${SERVER}:${SERVER_PORT}
-AllowedIPs = 10.8.0.0/24
+AllowedIPs = ${SERVER_VPN_CIDR}, ${SERVER_LAN_CIDR}
 PersistentKeepalive = 25
 CONF
 fi
@@ -92,8 +94,11 @@ sudo -n wg show
 echo "Pinging server VPN IP 10.8.0.1..."
 ping -c 3 10.8.0.1
 
+echo "Pinging LAN test target ${SERVER_LAN_TEST_IP}..."
+ping -c 3 "${SERVER_LAN_TEST_IP}"
+
 echo "Route check (wg routes only):"
-ip route | grep -E '10\.8\.0\.0/24' || true
+ip route | grep -E '10\.8\.0\.0/24|192\.168\.0\.0/24' || true
 
 if [[ -n "${CLIENT_ID}" ]]; then
   PUB_KEY="$(awk -F',' -v id="${CLIENT_ID}" 'NR>1 && $1==id {print $4}' "${CLIENT_REGISTRY}")"
