@@ -1,0 +1,33 @@
+# Reference: /etc/ufw/user.rules after secure-dmz-firewall.sh (do not edit live; re-run installer).
+# Public: tcp/22, udp/51820. LAN: 10.0.0.0/24 full accept (rule order below).
+
+*filter
+:ufw-user-input - [0:0]
+:ufw-user-output - [0:0]
+:ufw-user-forward - [0:0]
+:ufw-before-logging-input - [0:0]
+:ufw-before-logging-output - [0:0]
+:ufw-before-logging-forward - [0:0]
+:ufw-user-logging-input - [0:0]
+:ufw-user-logging-output - [0:0]
+:ufw-user-logging-forward - [0:0]
+:ufw-after-logging-input - [0:0]
+:ufw-after-logging-output - [0:0]
+:ufw-after-logging-forward - [0:0]
+:ufw-logging-deny - [0:0]
+:ufw-logging-allow - [0:0]
+:ufw-user-limit - [0:0]
+:ufw-user-limit-accept - [0:0]
+### RULES ###
+
+### tuple ### allow any any 0.0.0.0/0 any 10.0.0.0/24 in comment=747275737465642049507634204c414e
+-A ufw-user-input -s 10.0.0.0/24 -j ACCEPT
+
+### tuple ### allow tcp 22 0.0.0.0/0 any 0.0.0.0/0 in comment=5353482066726f6d20496e7465726e6574
+-A ufw-user-input -p tcp --dport 22 -j ACCEPT
+
+### tuple ### allow udp 51820 0.0.0.0/0 any 0.0.0.0/0 in comment=576972654775617264
+-A ufw-user-input -p udp --dport 51820 -j ACCEPT
+
+### END RULES ###
+COMMIT

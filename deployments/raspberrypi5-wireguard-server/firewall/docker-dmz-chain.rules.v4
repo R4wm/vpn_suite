@@ -1,0 +1,11 @@
+# Reference: DMZ_ONLY_PUBLIC chain (installed by secure-dmz-firewall.sh --docker-only)
+# Applies to traffic entering DOCKER-USER from WAN; LAN and established sessions pass.
+
+-N DMZ_ONLY_PUBLIC
+-A DOCKER-USER -j DMZ_ONLY_PUBLIC
+-A DMZ_ONLY_PUBLIC -m conntrack --ctstate RELATED,ESTABLISHED -j RETURN
+-A DMZ_ONLY_PUBLIC -i eth0 -s 10.0.0.0/24 -j RETURN
+-A DMZ_ONLY_PUBLIC -i eth0 -p tcp -m tcp --dport 22 -j RETURN
+-A DMZ_ONLY_PUBLIC -i eth0 -p udp -m udp --dport 51820 -j RETURN
+-A DMZ_ONLY_PUBLIC -i eth0 -j DROP
+-A DMZ_ONLY_PUBLIC -j RETURN
