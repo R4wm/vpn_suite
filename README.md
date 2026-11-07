@@ -100,6 +100,7 @@ See `docs/DASHBOARD.md` and `monitoring/wg-ui/` for non-Docker wg-ui deployment.
 - You do **not** set public IP in server `wg0.conf` for WireGuard itself.
 - You **do** set public endpoint in each client profile:
   - `Endpoint = <public-ip-or-dns>:51820`
+- **Dynamic home IP:** the NAS (`10.0.0.240`) cron runs `./scripts/publish-home-wan-ip.sh` so clients can read `curl -fsS https://base.prsmusa.com/ip` (see `infra-docs/runbooks/vpn-home-ip-publish.md`).
 - When testing on the same LAN as the server, use the LAN endpoint instead:
   - `Endpoint = 192.168.0.116:51820`
 - If you switch to public endpoint from inside your LAN, your router must support NAT loopback/hairpin NAT.
