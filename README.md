@@ -106,6 +106,7 @@ See `docs/DASHBOARD.md` and `monitoring/wg-ui/` for non-Docker wg-ui deployment.
 - If you switch to public endpoint from inside your LAN, your router must support NAT loopback/hairpin NAT.
 - Keep UDP `51820` open/forwarded to the WireGuard server host.
 - **DMZ / public exposure policy** on the Pi (`10.0.0.240`): only **SSH + WireGuard** from the Internet; LAN keeps all services — see [`deployments/raspberrypi5-wireguard-server/README.md`](deployments/raspberrypi5-wireguard-server/README.md).
+- **Laptop client:** `scripts/prsm-vpn` → install to `/usr/local/bin/prsm-vpn`; run `sudo prsm-vpn up` (auto LAN vs WAN endpoint).
 
 ## Docs
 - `docs/IMPLEMENTATION_PLAN.md`

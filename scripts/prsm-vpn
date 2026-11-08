@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# PRSM WireGuard client helper (laptop). Config: /etc/wireguard/wg-prsm.conf (interface wg-prsm).
+set -euo pipefail
+
+CONF="${PRSM_VPN_CONF:-/etc/wireguard/wg-prsm.conf}"
+IFACE="${PRSM_VPN_IFACE:-wg-prsm}"
+LAN_SERVER="${PRSM_VPN_LAN_SERVER:-10.0.0.240}"
+LAN_CIDR="${PRSM_VPN_LAN_CIDR:-10.0.0.0/24}"
+WG_PORT="${PRSM_VPN_PORT:-51820}"
+WAN_IP_URL="${PRSM_VPN_WAN_IP_URL:-https://base.prsmusa.com/ip}"
+SERVER_PUBKEY="${PRSM_VPN_SERVER_PUBKEY:-86SMqujsGCwtdikcIsAd66USgcuyoepI/+AzYZzadQM=}"
+
+die() { echo "prsm-vpn: $*" >&2; exit 1; }
+
+need_root() {
+  [[ ${EUID} -eq 0 ]] || die "use sudo or run as root (wg-quick needs it)"
+}
+
+on_lan() {
+  ping -c1 -W1 "$LAN_SERVER" >/dev/null 2>&1
+}
+
+fetch_wan_ip() {
+  curl -4 -fsS -m15 "$WAN_IP_URL" | tr -d '[:space:]'
+}
+
+write_conf() {
+  local endpoint="$1"
+  local allowed="$2"
+  local priv
+  if [[ -f $CONF ]]; then
+    priv=$(grep -m1 '^PrivateKey' "$CONF" | awk '{print $3}')
+  else
+    die "missing $CONF — create it once with your client PrivateKey and Address 10.8.0.10/32"
+  fi
+  [[ -n $priv ]] || die "no PrivateKey in $CONF"
+  umask 077
+  cat >"$CONF" <<EOF
+[Interface]
+Address = 10.8.0.10/32
+PrivateKey = $priv
+
+[Peer]
+PublicKey = $SERVER_PUBKEY
+Endpoint = $endpoint
+AllowedIPs = $allowed
+PersistentKeepalive = 25
+EOF
+  chmod 600 "$CONF"
+}
+
+usage() {
+  cat <<EOF
+Usage: prsm-vpn {up|down|status|endpoint}
+
+  up              Connect (auto: LAN endpoint at home, public IP when away)
+  up --full-lan   When away: also route $LAN_CIDR via VPN (needs server setup)
+  down            Disconnect
+  status          wg show + ping 10.8.0.1
+  endpoint        Print endpoint that "up" would use (no sudo)
+EOF
+}
+
+cmd="${1:-}"
+shift || true
+
+case "$cmd" in
+  up)
+    full_lan=0
+    if [[ ${1:-} == --full-lan ]]; then
+      full_lan=1
+      shift
+    fi
+  need_root
+  if on_lan; then
+    endpoint="${LAN_SERVER}:${WG_PORT}"
+    allowed="10.8.0.0/24"
+    echo "On home LAN — endpoint ${endpoint}, AllowedIPs ${allowed}"
+  else
+    wan="$(fetch_wan_ip)"
+    [[ $wan =~ ^[0-9.]+$ ]] || die "could not read WAN IP from ${WAN_IP_URL}"
+    endpoint="${wan}:${WG_PORT}"
+    if [[ $full_lan -eq 1 ]]; then
+      allowed="10.8.0.0/24, ${LAN_CIDR}"
+    else
+      allowed="10.8.0.0/24"
+    fi
+    echo "Away from home — endpoint ${endpoint}, AllowedIPs ${allowed}"
+  fi
+  write_conf "$endpoint" "$allowed"
+  wg-quick down "$IFACE" 2>/dev/null || true
+  wg-quick up "$IFACE"
+  wg show "$IFACE"
+  ping -c2 -W2 10.8.0.1 || die "no reply from VPN gateway 10.8.0.1"
+  ;;
+  down)
+    need_root
+    wg-quick down "$IFACE"
+    ;;
+  status)
+    if [[ ${EUID} -ne 0 ]]; then
+      sudo wg show "$IFACE" 2>/dev/null || echo "tunnel down"
+    else
+      wg show "$IFACE" 2>/dev/null || echo "tunnel down"
+    fi
+    ping -c1 -W1 10.8.0.1 >/dev/null 2>&1 && echo "10.8.0.1 reachable" || echo "10.8.0.1 not reachable"
+    ;;
+  endpoint)
+    if on_lan; then
+      echo "${LAN_SERVER}:${WG_PORT} (LAN)"
+    else
+      echo "$(fetch_wan_ip):${WG_PORT} (WAN)"
+    fi
+    ;;
+  -h|--help|help|"")
+    usage
+    ;;
+  *)
+    die "unknown command: $cmd (try prsm-vpn help)"
+    ;;
+esac
