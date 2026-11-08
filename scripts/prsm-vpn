@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # PRSM WireGuard client helper (laptop). Config: /etc/wireguard/wg-prsm.conf (interface wg-prsm).
+#
+# sudo does not use your login PATH (~/.local/bin). Install with: sudo prsm-vpn install
+# (places a copy in /usr/local/bin for sudo, and ~/.local/bin for interactive shells).
 set -euo pipefail
+
+SYSTEM_BIN="${PRSM_VPN_SYSTEM_BIN:-/usr/local/bin/prsm-vpn}"
+USER_BIN="${PRSM_VPN_USER_BIN:-${HOME}/.local/bin/prsm-vpn}"
 
 CONF="${PRSM_VPN_CONF:-/etc/wireguard/wg-prsm.conf}"
 IFACE="${PRSM_VPN_IFACE:-wg-prsm}"
@@ -49,9 +55,32 @@ EOF
   chmod 600 "$CONF"
 }
 
+cmd_install() {
+  need_root
+  local src
+  src="$(readlink -f "${BASH_SOURCE[0]}")"
+  install -m755 "$src" "$SYSTEM_BIN"
+  if [[ -n ${SUDO_USER:-} ]]; then
+    local user_home
+    user_home="$(getent passwd "$SUDO_USER" | cut -d: -f6)"
+    mkdir -p "${user_home}/.local/bin"
+    install -m755 "$src" "${user_home}/.local/bin/prsm-vpn"
+    chown "$SUDO_USER:" "${user_home}/.local/bin/prsm-vpn"
+    echo "Also installed ${user_home}/.local/bin/prsm-vpn (login PATH)"
+  else
+    mkdir -p "$(dirname "$USER_BIN")"
+    install -m755 "$src" "$USER_BIN"
+    echo "Also installed $USER_BIN (login PATH)"
+  fi
+  echo "Installed $SYSTEM_BIN — use: sudo prsm-vpn up"
+}
+
 usage() {
   cat <<EOF
-Usage: prsm-vpn {up|down|status|endpoint}
+Usage: prsm-vpn {up|down|status|endpoint|install}
+
+  install         Copy this script to $SYSTEM_BIN (and ~/.local/bin). Run: sudo prsm-vpn install
+                  Required because sudo does not search ~/.local/bin.
 
   up              Connect (auto: LAN endpoint at home, public IP when away)
   up --full-lan   When away: also route $LAN_CIDR via VPN (needs server setup)
@@ -111,6 +140,9 @@ case "$cmd" in
     else
       echo "$(fetch_wan_ip):${WG_PORT} (WAN)"
     fi
+    ;;
+  install)
+    cmd_install
     ;;
   -h|--help|help|"")
     usage
